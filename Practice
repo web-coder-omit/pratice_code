@@ -1,0 +1,96 @@
+<?php 
+/**
+*Plugin Name: pratice ‍all of code
+*Plugin URI: https://www.webcoderomit.com
+*Description:Advances code about QR-code.
+*Version: 1.0.0
+*Author: Md. Omit Hasan
+*Author URI: https://omithasan.com
+*License: GPLv2 or Later
+*Text Domain: Pac
+*Domain Path:/langurages/
+*/
+// Languages file loaded
+function qrcode_langurages_file(){
+    load_plugin_textdomain( 'qrcode',false, dirname(__FILE__)."/Languages");
+}
+
+
+
+
+
+// function First_function($texts){
+//     return $texts;    
+// }
+// add_filter('Custom_hook', 'First_function');
+// echo apply_filters('Custom_hook', 'None of the word');
+
+// function custom_function(){
+//     // echo "Print someting";
+// }
+
+// add_action('custom_hooks', "custom_function");
+// echo do_action('custom_hooks', "Doing someting action");
+
+
+
+
+
+add_action("plugins_loaded","qrcode_langurages_file");
+
+function qrcode_post_content($content){
+    $post_link = get_permalink();
+    $width = get_option('qrcode_width');
+    $height = get_option('qrcode_height');
+
+    $qrcode_size = apply_filters( 'qrcode_dimantions',"{$width}x{$height}" );
+    $qrcode_link = sprintf('https://api.qrserver.com/v1/create-qr-code/?size=%s&ecc=L&qzone=1&data=%s',$qrcode_size,$post_link);
+    $content .= sprintf("<img src='%s'/>",$qrcode_link);
+    return $content;
+}
+add_filter( 'the_content','qrcode_post_content');
+
+
+add_action("admin_init",'qrcode_admin_access');
+
+
+function plugin_languages(){
+    load_plugin_textdomain('plugins_languages',false,dirname(__FILE__)."/languages");
+}
+add_action("plugins_loaded","plugin_languages");
+
+
+function enqueue_js_function(){
+    wp_enqueue_script("public_js_file",plugin_dir_url(__FILE__)."asset/public/js/public_main.js",array(),'1.0.0',true);
+    wp_enqueue_style("public_css_file",plugin_dir_url(__FILE__)."asset/public/css/public_style.css");
+}
+add_action("wp_enqueue_scripts","enqueue_js_function");
+
+function enqueue_admin_function($screen){
+    $_scren= get_current_screen();
+    if('edit.php' == $screen && 'post'== $_scren->post_type){
+        wp_enqueue_script("admin_js_file",plugin_dir_url(__FILE__)."asset/admin/js/admin_main.js",array(),'1.0.0',true);
+    }
+    wp_enqueue_script("admin_css_file",plugin_dir_url(__FILE__)."asset/admin/css/admin_style.css");
+}
+add_action("admin_enqueue_scripts","enqueue_admin_function");
+
+
+function btn_function($att,$content=""){
+$default = array(
+    "url"=>"www.facebook.com",
+    $content
+);
+$def_val = shortcode_atts($default,$att);
+$val = <<<DOE
+    <button class="btn_design">
+        <a href="{$def_val['url']}">{$content}</a>
+    </button>
+DOE;
+return $val;
+}
+add_shortcode('btn','btn_function');
+
+
+
+?>
